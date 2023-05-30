@@ -84,6 +84,10 @@ int main() {
     }
 }
 
+
 // under src/ directory:
 // compile with: g++ -I../lib -o binance_orderbook binance_orderbook.cpp -lcurl
 // execute with: ./binance_orderbook
+
+// to benchmark the execution time:
+// time ./binance_orderbook
