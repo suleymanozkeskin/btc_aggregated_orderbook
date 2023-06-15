@@ -6,7 +6,7 @@ import subprocess
 import requests
 
 # Set the time delay in seconds between each iteration
-delay = 0.2
+delay = 0.1
 price_range = 50  # Price range for analysis
 
 while True:

@@ -34,14 +34,5 @@ orderbook.to_csv('orderbook.csv', index=False)
 
 
 if __name__ == '__main__':
-    # print each exchange's orderbook with respective title
-    # print(bybit.name)
-    # print(bybit_orderbook)
-    # print(coinbase.name)
-    # print(coinbase_orderbook)
-    # print(okex.name)
-    # print(okex_orderbook)
-    # print(binance.name)
-    # print(binance_orderbook)
     print(orderbook)
 
