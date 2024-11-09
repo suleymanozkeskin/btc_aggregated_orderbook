@@ -1,7 +1,0 @@
-compile all the files under src directory:
-
-    g++ -I../lib -o main main.cpp exchange.cpp binance_orderbook.cpp bybit_orderbook.cpp okex_orderbook.cpp -lcurl
-
-run the program:
-
-    ./main
