@@ -1,38 +1,35 @@
 import pandas as pd
-from bybit_orderbook import Bybit
-from coinbase_orderbook import Coinbase
-from okex_orderbook import OKEx
-from binance_orderbook import Binance
+from utils.ob import get_available_orderbooks, aggregate_orderbooks
+import logging
 
-# Initialize exchange objects
-bybit = Bybit('Bybit', 'https://api.bybit.com/')
-coinbase = Coinbase('Coinbase', 'https://api.pro.coinbase.com/')
-okex = OKEx('OKEx', 'https://www.okex.com/')
-binance = Binance('Binance', 'https://api.binance.com/')
-
-# Fetch orderbook data
-bybit_orderbook = bybit.fetch_orderbook()
-coinbase_orderbook = coinbase.fetch_orderbook()
-okex_orderbook = okex.fetch_orderbook()
-binance_orderbook = binance.fetch_orderbook()
-
-# Select only the relevant columns for each DataFrame
-bybit_orderbook = bybit_orderbook[['Price', 'Size', 'Side']]
-coinbase_orderbook = coinbase_orderbook[['Price', 'Size', 'Side']]
-okex_orderbook = okex_orderbook[['Price', 'Size', 'Side']]
-binance_orderbook = binance_orderbook[['Price', 'Size', 'Side']]
-
-# Concatenate the modified DataFrames
-orderbook = pd.concat([bybit_orderbook, okex_orderbook, binance_orderbook], ignore_index=True)
+# Set up logging
+logging.basicConfig(
+    level=logging.INFO,
+    format='%(asctime)s - %(name)s - %(levelname)s - %(message)s'
+)
+logger = logging.getLogger(__name__)
 
 
-# You may want to sort the orderbook based on price
-orderbook = orderbook.sort_values(by=['Price'], ascending=False).reset_index(drop=True)
 
-# Save the orderbook to a csv file
-orderbook.to_csv('orderbook.csv', index=False)
+def main():
+    try:
+        # Fetch all available orderbooks
+        orderbooks = get_available_orderbooks()
+        
+        # Aggregate the available orderbooks
+        aggregated_data = aggregate_orderbooks(orderbooks)
+        
+        # aggregated_data['bids'] and aggregated_data['asks']
+        # as sorted pandas DataFrames with price, size, and exchange columns
+        print(f"Aggregated {len(aggregated_data['bids'])} bids and {len(aggregated_data['asks'])} asks")
+        
+        # Save the aggregated orderbook to a csv file
+        aggregated_data['bids'].to_csv('aggregated_bids.csv', index=False)
+        aggregated_data['asks'].to_csv('aggregated_asks.csv', index=False)
+        
+    except Exception as e:
+        logger.error(f"Critical error in main process: {str(e)}")
+        raise
 
-
-if __name__ == '__main__':
-    print(orderbook)
-
+if __name__ == "__main__":
+    main()

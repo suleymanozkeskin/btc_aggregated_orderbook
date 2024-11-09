@@ -1,0 +1,14 @@
+[project]
+name = "orderbook"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "matplotlib>=3.9.2",
+    "pandas>=2.2.3",
+    "pyqt5>=5.15.11",
+    "pyqtgraph>=0.13.7",
+    "requests>=2.32.3",
+    "ruff>=0.7.3",
+]

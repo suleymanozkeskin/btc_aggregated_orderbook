@@ -1,20 +1,22 @@
 // src/main.cpp
 #include <iostream>
+#include <iomanip>
+#include <string>
 #include <vector>
+#include <sstream>
 #include <algorithm>
 #include <fstream>
+#include <map>
 #include "bybit_orderbook.h"
 #include "okex_orderbook.h"
 #include "binance_orderbook.h"
+#include "analyze.h"
 
 using namespace std;
 
-// Forward declaration of print_orderbook
-void print_orderbook(const vector<vector<string>>& orderbook);
-
 int main() {
     Bybit bybit("Bybit", "https://api.bybit.com/");
-    OKEx okex("OKEx", "https://www.okex.com/");
+    OKEx okex("OKEx", "https://www.okx.com/");
     Binance binance("Binance", "https://api.binance.com/");
 
     // Fetch orderbook data
@@ -55,15 +57,12 @@ int main() {
     // Print the orderbook
     print_orderbook(master_orderbook);
 
+    // Print statistics and visualization
+    print_orderbook_stats(master_orderbook);
+    plot_orderbook_depth(master_orderbook);
+
     return 0;
 }
 
-void print_orderbook(const vector<vector<string>>& orderbook) {
-    for (const auto& row : orderbook) {
-        cout << "Price: " << row[0] << ", Size: " << row[1] << ", Side: " << row[2] << '\n';
-    }
-}
-
 // under src/ directory:
-// compile with: g++ -I../lib -o main main.cpp -lcurl
 // execute with: ./main 

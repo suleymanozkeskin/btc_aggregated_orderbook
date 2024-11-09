@@ -1,8 +1,8 @@
+# orderbook/analyze.py
 import pandas as pd
 import matplotlib.pyplot as plt
 import time
 import subprocess
-
 import requests
 
 # Set the time delay in seconds between each iteration
@@ -13,46 +13,45 @@ while True:
     # Execute the main.py script to update the CSV data
     subprocess.run(['python3', 'main.py'])
 
-    # Load the updated orderbook data from the CSV file
-    orderbook = pd.read_csv('orderbook.csv')
-
-    # Calculate cumulative sums for buy and sell sides
-    orderbook['Buy'] = orderbook[orderbook['Side'] == 'buy']['Size'].cumsum()
-    orderbook['Sell'] = orderbook[orderbook['Side'] == 'sell']['Size'].cumsum()
+    # Load the updated orderbook data from the CSV files
+    bids_df = pd.read_csv('aggregated_bids.csv')
+    asks_df = pd.read_csv('aggregated_asks.csv')
 
     # Get the current BTC price from binance
     response = requests.get('https://api.binance.com/api/v3/ticker/price', params={'symbol': 'BTCUSDT'})
     current_price = float(response.json()['price'])
     
-    # Analyze the buy and sell sides within the price range
+    # Calculate cumulative sums for bids and asks
+    bids_df['cumulative_size'] = bids_df['size'].cumsum()
+    asks_df['cumulative_size'] = asks_df['size'].cumsum()
+
+    # Analyze the volumes within the price range
     price_min = current_price - price_range
     price_max = current_price + price_range
-    buy_size = orderbook[(orderbook['Price'] >= price_min) & (orderbook['Price'] <= price_max) & (orderbook['Side'] == 'buy')]['Size'].sum()
-    sell_size = orderbook[(orderbook['Price'] >= price_min) & (orderbook['Price'] <= price_max) & (orderbook['Side'] == 'sell')]['Size'].sum()
+    bid_size = bids_df[(bids_df['price'] >= price_min) & (bids_df['price'] <= current_price)]['size'].sum()
+    ask_size = asks_df[(asks_df['price'] <= price_max) & (asks_df['price'] >= current_price)]['size'].sum()
 
     # Clear the previous plot
     plt.clf()
 
     plt.title("Aggregated Orderbook BTC/USD")
-    # Plot the updated cumulative sums for buy and sell sides
-    plt.plot(orderbook['Price'], orderbook['Buy'], label='Buy')
-    plt.plot(orderbook['Price'], orderbook['Sell'], label='Sell')
+    # Plot the updated cumulative sums
+    plt.plot(bids_df['price'], bids_df['cumulative_size'], label='Bids', color='green')
+    plt.plot(asks_df['price'], asks_df['cumulative_size'], label='Asks', color='red')
 
     plt.xlabel('Price')
     plt.ylabel('Cumulative Size')
     plt.legend()
 
     # Set the tick interval for the price axis to 25 dollars
-    plt.xticks(range(int(min(orderbook['Price'])), int(max(orderbook['Price'])) + 1, 25))
+    plt.xticks(range(int(min(bids_df['price'])), int(max(asks_df['price'])) + 1, 25))
 
-    # Add text to display current price and buy/sell analysis within the price range
+    # Add text to display current price and volume analysis within the price range
     plt.text(0.95, 0.9, f'Current Price: {current_price:.2f}', transform=plt.gca().transAxes, ha='right')
-    plt.text(0.95, 0.8, f'Buy Size: {buy_size:.2f}', transform=plt.gca().transAxes, ha='right')
-    plt.text(0.95, 0.7, f'Sell Size: {sell_size:.2f}', transform=plt.gca().transAxes, ha='right')
+    plt.text(0.95, 0.8, f'Bid Volume: {bid_size:.2f}', transform=plt.gca().transAxes, ha='right')
+    plt.text(0.95, 0.7, f'Ask Volume: {ask_size:.2f}', transform=plt.gca().transAxes, ha='right')
 
     plt.draw()
-    plt.pause(0.01)  # Add a small delay to allow the plot to update
+    plt.pause(0.01)
 
-    # Wait for the specified delay before the next iteration
     time.sleep(delay)
-
