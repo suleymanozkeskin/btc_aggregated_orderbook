@@ -1,2 +1,4 @@
 .env
 /gitignore_folder
+*.csv
+*__pycache__
