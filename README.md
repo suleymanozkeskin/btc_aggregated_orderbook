@@ -56,7 +56,7 @@ To run the C++ implementation, follow these steps:
 
 3. Cli output screenshot:
 
-    ![cli-stats](/cli-stats.png)
+    ![cli-stats](cli-stats.png)
 
 ## Contributions
 
